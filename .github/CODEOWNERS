@@ -1,0 +1,3 @@
+# Review routing; this file does not itself enforce branch protection.
+# Owners must retain write access. Extend this list as maintainers join.
+* @TemoSulava
