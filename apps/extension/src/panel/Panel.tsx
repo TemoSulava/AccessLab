@@ -1,4 +1,5 @@
 import { useState, useSyncExternalStore, type KeyboardEvent } from 'react';
+import { Export } from './Export';
 import { Preview } from './Preview';
 import { Inspection } from './Inspection';
 import { Findings } from './Findings';
@@ -19,7 +20,7 @@ export function Panel({controller,docsUrl}: {controller:PageController;docsUrl:s
    {tab==='Audit'&&<><h2>Automated audit</h2><p>Check the current page with locally bundled axe-core.</p><div className="row"><button className="primary" aria-disabled={state.status==='scanning'} onClick={()=>{if(state.status!=='scanning')void controller.runScan()}}>Run audit</button>{state.status==='scanning'&&<button onClick={()=>controller.cancelScan()}>Cancel audit</button>}</div>
     {state.status==='scanning'&&<p role="progressbar" aria-label="Audit in progress">Scanning…</p>}
     {!state.report&&state.status!=='scanning'&&<p className="notice">No scan yet. Automated checks cover only part of accessibility; manual checks remain.</p>}
-    {state.report&&<><p className="muted">{state.report.engine.name} {state.report.engine.version} · {new Date(state.report.startedAt).toLocaleTimeString()} · {Math.round(state.report.durationMs)} ms · {state.report.scope.excludedFrames} excluded frames</p>{state.report.stale&&<p className="notice">Stale report. Run again after page changes.</p>}<Findings report={state.report} controller={controller}/>
+    {state.report&&<><p className="muted">{state.report.engine.name} {state.report.engine.version} · {new Date(state.report.startedAt).toLocaleTimeString()} · {Math.round(state.report.durationMs)} ms · {state.report.scope.excludedFrames} excluded frames</p>{state.report.stale&&<p className="notice">Stale report. Run again after page changes.</p>}<Findings report={state.report} controller={controller}/><Export report={state.report} controller={controller}/>
 </>}
 {state.status==='error'&&<p role="alert">The scan failed. Retry after resolving the reported error.</p>}</>}
    {tab==='Inspect'&&<><Inspection controller={controller}/></>}
