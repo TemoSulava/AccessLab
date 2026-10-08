@@ -8,3 +8,6 @@ test-results/
 artifacts/
 dist/
 .output-test/
+
+.pnpm-cache/
+__pycache__/
