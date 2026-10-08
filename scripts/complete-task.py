@@ -19,8 +19,8 @@ if pr.returncode==0:
  url=pr.stdout.strip().splitlines()[-1]
  if Path('.github/workflows/verify.yml').exists():
   for attempt in range(12):
-   result=subprocess.run(['gh','pr','checks',url,'--json','name,state,link'],capture_output=True,text=True)
-   try: checks=json.loads(result.stdout)
+   result=subprocess.run(['gh','pr','view',url,'--json','statusCheckRollup'],capture_output=True,text=True)
+   try: checks=json.loads(result.stdout).get('statusCheckRollup',[])
    except json.JSONDecodeError: checks=[]
    if isinstance(checks,list) and checks: break
    time.sleep(5)
