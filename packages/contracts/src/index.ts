@@ -57,7 +57,7 @@ function textField(value: unknown) { if (typeof value !== 'string') throw new Er
 function strings(value: unknown) { if (!Array.isArray(value) || value.some(v => typeof v !== 'string')) throw new Error('Invalid text list'); }
 function positive(value: unknown, integer=false) { if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || (integer && !Number.isInteger(value))) throw new Error('Invalid number'); }
 export const reportSchema: RuntimeSchema<AuditReport> = { parse(value) {
-  if (new TextEncoder().encode(JSON.stringify(value)).length > REPORT_BYTES) throw new Error('Report exceeds 5 MiB; no partial export created');
+  if (new TextEncoder().encode(JSON.stringify(value)).length > REPORT_BYTES) throw new Error('Report exceeds 5 MiB; no partial report published or exported');
   const v = object(value); exact(v, ['schemaVersion','productVersion','engine','page','viewport','startedAt','durationMs','generation','pageRevision','stale','scope','violations','needsReview']);
   if (v.schemaVersion !== 1 || typeof v.stale !== 'boolean') throw new Error('Unsupported report');
   for (const key of ['productVersion','page','startedAt']) textField(v[key]);

@@ -1,0 +1,12 @@
+import { exact,object,type AccessLabModule } from '@accesslab/contracts';
+import { ownedElement } from './dom';
+export const headingOutline:AccessLabModule<{limit:number}>={
+ id:'heading-outline',apiVersion:1,kind:'inspection',capabilities:['bounded-heading-overlays'],
+ configSchema:{parse(value){const v=object(value);exact(v,['limit']);if(typeof v.limit!=='number'||!Number.isInteger(v.limit)||v.limit<1||v.limit>20)throw Error('limit must be an integer from 1 to 20');return{limit:v.limit};}},
+ async activate(ctx,config){
+  const headings=[...ctx.document.querySelectorAll('h1,h2,h3')].filter(e=>!ownedElement(e)).slice(0,config.limit);
+  for(const heading of headings)ctx.effects.add(ctx.overlay.show(heading,'Heading outline'));
+  ctx.report({type:'status',message:`${headings.length} heading outlines active; light document only, manual review remains.`});
+  return()=>{}; // Effect registry owns every overlay; Reset/Close also aborts this instance.
+ }
+};

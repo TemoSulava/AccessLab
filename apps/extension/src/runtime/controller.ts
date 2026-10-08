@@ -1,7 +1,8 @@
 import { Effects, Generation, ModuleManager, OverlayLayer, cancellable } from '@accesslab/core';
+import { reportSchema } from '@accesslab/contracts';
 import type { AuditReport, ScanState, Cleanup, TargetObservation, FocusObservation, BaselineEffect } from '@accesslab/contracts';
-import { runAxe, AUDIT_TIMEOUT_MS, type AuditRunner, targetSize, focusTrail, visualPreview, type PreviewMode } from '@accesslab/modules';
-export interface ControllerState { status: ScanState; revision: number; report?: AuditReport; message: string; dock: 'right'|'left'; collapsed: boolean; targetsActive:boolean; targetThreshold:24|44; observations:TargetObservation[]; targetCandidates:number; targetTruncated:number; hoveredTarget?:TargetObservation; focusActive:boolean; focusVisits:number; focusTrail:FocusObservation[]; previewMode?:PreviewMode; previewStrength:number; previewRegionLabel?:string; pickingRegion:boolean; }
+import { runAxe, AUDIT_TIMEOUT_MS, type AuditRunner, moduleRegistry, type PreviewMode } from '@accesslab/modules';
+export interface ControllerState { status: ScanState; revision: number; report?: AuditReport; message: string; dock: 'right'|'left'; collapsed: boolean; targetsActive:boolean; targetThreshold:24|44; observations:TargetObservation[]; targetCandidates:number; targetTruncated:number; hoveredTarget?:TargetObservation; focusActive:boolean; focusVisits:number; focusTrail:FocusObservation[]; previewMode?:PreviewMode; previewStrength:number; previewRegionLabel?:string; pickingRegion:boolean; localModules:string[]; }
 export class PageController {
  readonly effects=new Effects();readonly scans=new Generation();readonly overlay:OverlayLayer;readonly manager:ModuleManager;
  readonly host:HTMLElement;readonly shadow:ShadowRoot;
@@ -9,7 +10,7 @@ export class PageController {
  private auditAbort?:AbortController;private auditRunning=false;readonly targets=new Map<string,Element|null>();
  private closing?:Promise<void>;
  private listeners=new Set<()=>void>();private previous:Element|null;private url:string;private closed=false;private locateCleanup?:Cleanup;
- private snapshot:ControllerState={status:'idle',revision:0,message:'AccessLab is active',dock:'right',collapsed:false,targetsActive:false,targetThreshold:24,observations:[],targetCandidates:0,targetTruncated:0,focusActive:false,focusVisits:0,focusTrail:[],previewStrength:2,pickingRegion:false};
+ private snapshot:ControllerState={status:'idle',revision:0,message:'AccessLab is active',dock:'right',collapsed:false,targetsActive:false,targetThreshold:24,observations:[],targetCandidates:0,targetTruncated:0,focusActive:false,focusVisits:0,focusTrail:[],previewStrength:2,pickingRegion:false,localModules:[]};
  onClose?:()=>void;
  constructor(readonly document:Document, private auditRunner:AuditRunner=runAxe, private auditTimeout=AUDIT_TIMEOUT_MS){
   this.previous=document.activeElement;this.url=document.location.href;
@@ -21,7 +22,7 @@ export class PageController {
    else if(event.type==='target-hover')this.update({hoveredTarget:event.observation});
    else if(event.type==='focus')this.update({focusVisits:event.visits,focusTrail:event.trail});
    else this.update({message:event.message});
-  }});this.manager.register(targetSize);this.manager.register(focusTrail);this.manager.register(visualPreview);
+  }});for(const entry of moduleRegistry)this.manager.register(entry.module);
 
   const shadowRoots=new Set<ShadowRoot>();
   const options={subtree:true,childList:true,attributes:true,characterData:true};
@@ -50,16 +51,17 @@ export class PageController {
  async clearFocus(){if(this.snapshot.focusActive)await this.enableFocus();else this.update({focusVisits:0,focusTrail:[]});}
  async enableTargets(threshold:24|44=this.snapshot.targetThreshold){this.update({targetsActive:true,targetThreshold:threshold,observations:[],message:'Measuring up to 1,000 targets…'});try{await this.manager.activate('target-size',{threshold});}catch(error){this.update({targetsActive:false,message:String(error)});}}
  async disableTargets(){await this.manager.deactivate('target-size');this.update({targetsActive:false,observations:[],hoveredTarget:undefined,targetCandidates:0,targetTruncated:0,message:'Target inspection disabled.'});}
+ async toggleLocalModule(id:string){const entry=moduleRegistry.find(e=>e.module.id===id&&e.control);if(!entry?.control){this.update({message:'Local module unavailable.'});return;}try{if(this.manager.activeIds.includes(id))await this.manager.deactivate(id);else{if(this.auditRunning){this.update({message:'Wait for the audit to finish or cancel before enabling a local module.'});return;}await this.manager.activate(id,entry.control.defaultConfig);}}catch(error){this.update({message:String(error)});}this.update({localModules:this.manager.activeIds.filter(id=>moduleRegistry.some(e=>e.module.id===id&&e.control))});}
  locateFinding(id:string){this.locate(this.targets.get(id)??null,'Located audit target.');}
  focusFinding(id:string){const target=this.targets.get(id);if(!target?.isConnected||!(target instanceof HTMLElement)){this.update({message:'Target unavailable: the element disappeared.'});return;}target.focus();this.update({message:this.document.activeElement===target||target.getRootNode() instanceof ShadowRoot?'Focus requested for target.':'Target could not receive focus; inspect its native focus behavior.'});}
  async runScan(){
   if(this.auditRunning)return;this.auditRunning=true;const generation=this.scans.next(),revision=this.snapshot.revision,abort=new AbortController();this.auditAbort=abort;this.targets.clear();this.overlay.suspend();const baseline=[...this.baselineEffects];this.update({status:'scanning',report:undefined,message:'Scanning top document…'});
-  try{for(const effect of baseline)effect.suspend();const output=await cancellable(this.auditRunner(this.document,generation,revision),abort.signal,this.auditTimeout);if(!this.scans.current(generation)||this.closed)return;const stale=this.snapshot.revision!==revision;for(const [id,element] of output.targets)this.targets.set(id,element);this.update({status:stale?'stale':'complete',report:{...output.report,stale},message:stale?'Page changed during scan; results are stale.':`Scan complete: ${output.report.violations.length} automated findings; ${output.report.needsReview.length} need review.`});}
+  try{for(const effect of baseline)effect.suspend();const output=await cancellable(this.auditRunner(this.document,generation,revision),abort.signal,this.auditTimeout);if(!this.scans.current(generation)||this.closed)return;reportSchema.parse(output.report);const stale=this.snapshot.revision!==revision;for(const [id,element] of output.targets)this.targets.set(id,element);this.update({status:stale?'stale':'complete',report:{...output.report,stale},message:stale?'Page changed during scan; results are stale.':`Scan complete: ${output.report.violations.length} automated findings; ${output.report.needsReview.length} need review.`});}
   catch(error){if(this.scans.current(generation)&&!this.closed)this.update({status:'error',message:String(error)});}
   finally{this.auditRunning=false;if(this.auditAbort===abort)this.auditAbort=undefined;this.overlay.resume();for(const effect of baseline)if(this.baselineEffects.has(effect))effect.resume();}
  }
  cancelScan(){this.scans.invalidate();this.auditAbort?.abort();if(this.snapshot.status==='scanning')this.update({status:'cancelled',message:'Scan cancelled. No new results published.'});}
- async reset(){this.cancelScan();this.baselineEffects.clear();this.previewGeneration.invalidate();this.previewRegion=undefined;this.targets.clear();await this.manager.reset().catch(e=>this.update({message:String(e)}));this.overlay.clear();this.update({status:'idle',report:undefined,previewMode:undefined,previewRegionLabel:undefined,pickingRegion:false,focusActive:false,focusVisits:0,focusTrail:[],targetsActive:false,observations:[],hoveredTarget:undefined,targetCandidates:0,targetTruncated:0,message:'Reset complete. No active effects.'});}
+ async reset(){this.cancelScan();this.baselineEffects.clear();this.previewGeneration.invalidate();this.previewRegion=undefined;this.targets.clear();await this.manager.reset().catch(e=>this.update({message:String(e)}));this.overlay.clear();this.update({status:'idle',report:undefined,localModules:[],previewMode:undefined,previewRegionLabel:undefined,pickingRegion:false,focusActive:false,focusVisits:0,focusTrail:[],targetsActive:false,observations:[],hoveredTarget:undefined,targetCandidates:0,targetTruncated:0,message:'Reset complete. No active effects.'});}
  close(){return this.closing??=this.dispose();}
  private async dispose(){if(this.closed)return;await this.reset();this.closed=true;await this.effects.dispose().catch(()=>{});this.listeners.clear();this.onClose?.();if(this.previous?.isConnected&&this.previous instanceof HTMLElement)this.previous.focus();}
 }

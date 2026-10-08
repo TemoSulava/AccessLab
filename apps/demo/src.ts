@@ -6,3 +6,9 @@ const modal=document.querySelector<HTMLDialogElement>('#modal')!;document.queryS
 document.querySelector('#insert')!.addEventListener('click',()=>{history.pushState({},'',`?spa=${Date.now()}`);const b=document.createElement('button');b.textContent='Inserted control';document.querySelector('main')!.append(b);});
 const ctx=document.querySelector<HTMLCanvasElement>('#canvas')!.getContext('2d')!;const gradient=ctx.createLinearGradient(0,0,200,0);gradient.addColorStop(0,'red');gradient.addColorStop(.5,'lime');gradient.addColorStop(1,'blue');ctx.fillStyle=gradient;ctx.fillRect(0,0,200,60);
 if(new URLSearchParams(location.search).has('large')){const fragment=document.createDocumentFragment();for(let i=0;i<10000;i++){const b=document.createElement('button');b.textContent=`Large fixture ${i}`;fragment.append(b);}document.querySelector('#large')!.append(fragment);}
+
+// This deliberately broken fixture is opt-in, local and always has a safe Escape exit.
+const loop=document.querySelector<HTMLElement>('#tab-loop')!,loopInput=document.querySelector<HTMLInputElement>('#loop-input')!,loopOpener=document.querySelector<HTMLButtonElement>('#open-loop')!,loopExit=document.querySelector<HTMLButtonElement>('#exit-loop')!;
+const closeLoop=()=>{loop.hidden=true;loopOpener.focus();};loopOpener.addEventListener('click',()=>{loop.hidden=false;loopInput.focus();});loopExit.addEventListener('click',closeLoop);
+loop.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();closeLoop();}else if(event.key==='Tab'&&!fixed.checked){event.preventDefault();loopInput.focus();}});
+fixed.addEventListener('change',()=>{loopExit.tabIndex=fixed.checked?0:-1;loopOpener.textContent=fixed.checked?'Open repaired Tab-loop fixture':'Open broken Tab-loop fixture';});

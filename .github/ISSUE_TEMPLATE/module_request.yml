@@ -1,0 +1,15 @@
+name: Local module proposal
+description: Propose a bounded, locally bundled accessibility inspection module.
+body:
+  - type: textarea
+    id: proposal
+    attributes:
+      label: User task, evidence and limits
+      description: Explain the barrier/workflow, expected output, manual-review limits, configuration, permissions and cleanup. No remote loading or arbitrary-page synthetic clicks.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Synthetic fixtures and verification
+      description: Include known-good/broken pairs, boundary cases, reset/close/race behavior and meaningful tests.

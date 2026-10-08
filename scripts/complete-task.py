@@ -8,6 +8,7 @@ t['state']='verified';s['checkpoint']=f'{id} verified. Next task in dependency o
 Path('docs/tasks/status.json').write_text(json.dumps(s,indent=2)+'\n')
 subprocess.run(['git','add','.'],check=True);subprocess.run(['git','commit','-m',f'{id}: {summary}'],check=True)
 t['commit']=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip();t['state']='done'
+if id=='T16': s['checkpoint']='v0.1 implementation complete; PR CI gate required before main merge. Human evaluation pending; optional T17 v0.2 unselected.'
 Path('docs/tasks/status.json').write_text(json.dumps(s,indent=2)+'\n')
 subprocess.run(['git','add','docs/tasks/status.json'],check=True);subprocess.run(['git','commit','-m',f'docs: record {id} completion'],check=True)
 subprocess.run(['git','push','-u','origin','HEAD'],check=True)
