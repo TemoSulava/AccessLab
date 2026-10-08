@@ -1,0 +1,207 @@
+{
+  "tasks": [
+    {
+      "id": "T01",
+      "dependencies": [],
+      "state": "verified",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T01",
+      "commit": null,
+      "evidencePath": "docs/evidence/T01.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T02",
+      "dependencies": [
+        "T01"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T02",
+      "commit": null,
+      "evidencePath": "docs/evidence/T02.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T03",
+      "dependencies": [
+        "T02"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T03",
+      "commit": null,
+      "evidencePath": "docs/evidence/T03.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T04",
+      "dependencies": [
+        "T03"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T04",
+      "commit": null,
+      "evidencePath": "docs/evidence/T04.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T05",
+      "dependencies": [
+        "T04"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T05",
+      "commit": null,
+      "evidencePath": "docs/evidence/T05.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T06",
+      "dependencies": [
+        "T05"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T06",
+      "commit": null,
+      "evidencePath": "docs/evidence/T06.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T07",
+      "dependencies": [
+        "T06"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T07",
+      "commit": null,
+      "evidencePath": "docs/evidence/T07.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T08",
+      "dependencies": [
+        "T07"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T08",
+      "commit": null,
+      "evidencePath": "docs/evidence/T08.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T09",
+      "dependencies": [
+        "T08"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T09",
+      "commit": null,
+      "evidencePath": "docs/evidence/T09.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T10",
+      "dependencies": [
+        "T09"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T10",
+      "commit": null,
+      "evidencePath": "docs/evidence/T10.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T11",
+      "dependencies": [
+        "T10"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T11",
+      "commit": null,
+      "evidencePath": "docs/evidence/T11.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T12",
+      "dependencies": [
+        "T11"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T12",
+      "commit": null,
+      "evidencePath": "docs/evidence/T12.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T13",
+      "dependencies": [
+        "T12"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T13",
+      "commit": null,
+      "evidencePath": "docs/evidence/T13.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T14",
+      "dependencies": [
+        "T13"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T14",
+      "commit": null,
+      "evidencePath": "docs/evidence/T14.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T15",
+      "dependencies": [
+        "T14"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T15",
+      "commit": null,
+      "evidencePath": "docs/evidence/T15.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T16",
+      "dependencies": [
+        "T15"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T16",
+      "commit": null,
+      "evidencePath": "docs/evidence/T16.md",
+      "blockedReason": null,
+      "humanGates": []
+    },
+    {
+      "id": "T17",
+      "dependencies": [
+        "T16"
+      ],
+      "state": "pending",
+      "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T17",
+      "commit": null,
+      "evidencePath": "docs/evidence/T17.md",
+      "blockedReason": null,
+      "humanGates": []
+    }
+  ],
+  "checkpoint": "T01 verified. Next task in dependency order."
+}

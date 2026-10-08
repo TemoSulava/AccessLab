@@ -1,0 +1,9 @@
+node_modules/
+.pnpm-store/
+.npm-cache/
+.output/
+.wxt/
+playwright-report/
+test-results/
+artifacts/
+dist/

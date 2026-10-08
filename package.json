@@ -1,0 +1,36 @@
+{
+  "name": "accesslab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=24.19.0 <25"
+  },
+  "scripts": {
+    "dev:demo": "vite apps/demo --host 127.0.0.1 --port 4173",
+    "lint": "eslint .",
+    "typecheck": "pnpm --filter @accesslab/extension prepare && tsc --noEmit",
+    "test:unit": "vitest run tests/unit",
+    "test:components": "vitest run tests/components",
+    "build": "pnpm --filter @accesslab/extension build",
+    "test:extension": "playwright test",
+    "test:visual": "playwright test --grep @visual",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:components && pnpm build && pnpm test:extension && pnpm test:visual",
+    "package": "node scripts/package.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/node": "26.6.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.2.3",
+    "vite": "8.3.3",
+    "vitest": "5.0.3",
+    "jsdom": "30.1.2",
+    "eslint": "9.39.1",
+    "typescript-eslint": "8.71.1",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/dom": "10.4.1",
+    "@playwright/test": "1.64.0"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node"
+    ],
+    "paths": {
+      "@accesslab/contracts": [
+        "./packages/contracts/src/index.ts"
+      ],
+      "@accesslab/core": [
+        "./packages/core/src/index.ts"
+      ],
+      "@accesslab/modules": [
+        "./packages/modules/src/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "packages/**/*.ts",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+  ],
+  "exclude": [
+    "**/.output/**",
+    "**/node_modules/**"
+  ]
+}

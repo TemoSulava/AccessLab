@@ -1,0 +1,19 @@
+{
+  "name": "@accesslab/extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "wxt prepare",
+    "build": "wxt build"
+  },
+  "dependencies": {
+    "wxt": "0.21.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "axe-core": "4.14.0",
+    "@accesslab/contracts": "workspace:*",
+    "@accesslab/core": "workspace:*",
+    "@accesslab/modules": "workspace:*"
+  }
+}

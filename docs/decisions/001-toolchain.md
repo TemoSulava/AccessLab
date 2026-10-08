@@ -1,0 +1,4 @@
+# Toolchain
+Node 24.19.0 (actual installed runtime); pnpm 11.19.0; WXT 0.21.4; React 19.3.0; TypeScript 5.9.3; Vitest 5.0.3; Playwright 1.64.0; axe-core 4.14.0. Versions are exact in manifests and pnpm-lock.yaml. Official npm registry engine metadata checked on 2026-10-08: WXT >=22, Playwright >=20, Vitest supports Node 24. Official WXT/Playwright web documentation returned proxy 403; bundled package types/source and GitHub docs are the fallback. Node 24.19 meets all selected engine requirements. Plain CSS, no backend. Runtime-only content entrypoint prevents static all-sites injection. Verify generated manifest at every build.
+
+Official WXT entrypoint documentation retrieved from raw.githubusercontent.com/wxt-dev/wxt/main/docs/guide/essentials/entrypoints.md. Bundled manifest generator confirms runtime entrypoints must omit matches to avoid adding host permissions. Output: apps/extension/.output/chrome-mv3/{background.js,content-scripts/content.js,manifest.json}.
