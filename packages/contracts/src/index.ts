@@ -67,6 +67,7 @@ export interface FocusObservation { index:number; target:string; elementType:str
 export type Cleanup = () => void | Promise<void>;
 export interface EffectRegistry { add(cleanup: Cleanup): Cleanup; dispose(): Promise<void>; readonly size: number; }
 export interface OverlayService { show(element: Element, label?: string): Cleanup; clear(): void; }
-export type ModuleEvent = { type:'targets'; observations:TargetObservation[]; totalCandidates:number; truncated:number } | { type:'target-hover'; observation:TargetObservation } | { type: 'status'; message: string } | { type: 'focus'; visits: number; trail:FocusObservation[] };
-export interface ModuleContext { document: Document; signal: AbortSignal; effects: EffectRegistry; overlay: OverlayService; report: (event: ModuleEvent) => void; }
+export interface BaselineEffect { suspend():void; resume():void; }
+export type ModuleEvent = {type:'preview-error';message:string} | { type:'targets'; observations:TargetObservation[]; totalCandidates:number; truncated:number } | { type:'target-hover'; observation:TargetObservation } | { type: 'status'; message: string } | { type: 'focus'; visits: number; trail:FocusObservation[] };
+export interface ModuleContext { document: Document; signal: AbortSignal; effects: EffectRegistry; overlay: OverlayService; report: (event: ModuleEvent) => void; baseline?:{register(effect:BaselineEffect):Cleanup}; own?:(node:Node)=>void; ownAttribute?:(element:Element,name:string)=>void; }
 export interface AccessLabModule<Config = unknown> { id: string; apiVersion: 1; kind: 'audit' | 'inspection' | 'preview'; configSchema: RuntimeSchema<Config>; capabilities: readonly string[]; exclusiveGroup?: string; activate(ctx: ModuleContext, config: Config): Promise<Cleanup>; }
