@@ -33,7 +33,8 @@
     "apps/**/*.tsx",
     "packages/**/*.ts",
     "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "tests/**/*.tsx",
+    "playwright.config.ts"
   ],
   "exclude": [
     "**/.output/**",

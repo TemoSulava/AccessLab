@@ -14,10 +14,11 @@
     "test:unit": "vitest run tests/unit",
     "test:components": "vitest run tests/components",
     "build": "pnpm --filter @accesslab/extension build",
-    "test:extension": "playwright test",
-    "test:visual": "playwright test --grep @visual",
+    "test:extension": "pnpm build:test && playwright test",
+    "test:visual": "pnpm build:test && playwright test --grep @visual",
     "verify": "pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:components && pnpm build && pnpm test:extension && pnpm test:visual",
-    "package": "node scripts/package.mjs"
+    "package": "node scripts/package.mjs",
+    "build:test": "ACCESSLAB_TEST=1 pnpm --filter @accesslab/extension build"
   },
   "devDependencies": {
     "typescript": "5.9.3",

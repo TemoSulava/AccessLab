@@ -1,0 +1,2 @@
+import { defineConfig } from '@playwright/test';
+export default defineConfig({ testDir: './tests/extension', workers: 1, timeout: 45000, expect: { timeout: 10000 }, reporter: [['list'], ['html', { open: 'never' }]], use: { screenshot: 'only-on-failure', trace: 'retain-on-failure' }, webServer: { command: 'pnpm dev:demo', url: 'http://127.0.0.1:4173', reuseExistingServer: !process.env.CI } });
