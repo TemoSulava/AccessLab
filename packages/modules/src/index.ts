@@ -1,1 +1,1 @@
-export {};
+export * from './axe-audit';
