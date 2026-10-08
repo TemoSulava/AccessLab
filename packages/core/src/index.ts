@@ -74,3 +74,4 @@ export class ModuleManager {
     if (errors.length) throw new AggregateError(errors, 'Module cleanup errors');
   }
 }
+export { OverlayLayer } from './overlay';
