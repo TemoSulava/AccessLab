@@ -1,4 +1,5 @@
 import axe from 'axe-core';
+import { INTERACTIVE,ownedElement } from '../dom';
 import { explainRule } from './explanations';
 import type { AuditReport, Finding, Impact } from '@accesslab/contracts';
 export const AUDIT_TAGS=['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa'];
@@ -22,9 +23,12 @@ export function normalize(document:Document,results:axe.AxeResults,generation:nu
 }
 const busy=new WeakSet<Document>();
 export const runAxe:AuditRunner=async(document,generation,revision)=>{
- const elementCount=document.querySelectorAll('*').length;const interactiveCount=document.querySelectorAll('button,a,input,select,textarea,[role=button],[role=link]').length;
- if(elementCount>5000||interactiveCount>1000)throw new Error('AUDIT_SCOPE_TOO_LARGE: this page exceeds the safe v0.1 budget (5,000 elements / 1,000 interactive targets). Audit was not run. Use a smaller developer-owned fixture; manual checks remain.');
+ const roots:(Element|ShadowRoot)[]=[document.documentElement];let elements=0,interactive=0;
+ while(roots.length){const root=roots.pop()!;const walker=document.createTreeWalker(root,NodeFilter.SHOW_ELEMENT,{acceptNode:node=>ownedElement(node as Element)|| (node as Element).hasAttribute('data-accesslab-color-resource')|| (node as Element).hasAttribute('data-accesslab-preview-style')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+ const count=(element:Element)=>{elements++;if(element.matches(INTERACTIVE))interactive++;if(element.shadowRoot)roots.push(element.shadowRoot);if(elements>5000||interactive>1000)throw new Error('AUDIT_SCOPE_TOO_LARGE: this page exceeds the safe v0.1 budget (5,000 elements / 1,000 interactive targets, including open shadow roots). Audit was not run. Use a smaller developer-owned fixture; manual checks remain.');};
+ if(root instanceof Element)count(root);let node:Node|null;while((node=walker.nextNode()))count(node as Element);
+ }
  if(busy.has(document))throw new Error('Previous audit is still finishing. Retry shortly.');busy.add(document);const start=performance.now();const startedAt=new Date().toISOString();
- try{const results=await axe.run({include:[document.documentElement],exclude:[['[data-accesslab-root]'],['[data-accesslab-overlay]'],['iframe']]},{runOnly:{type:'tag',values:AUDIT_TAGS},iframes:false,resultTypes:['violations','incomplete']});return normalize(document,results,generation,revision,startedAt,performance.now()-start);}
+ try{const results=await axe.run({include:[document.documentElement],exclude:[['[data-accesslab-root]'],['[data-accesslab-overlay]'],['iframe'],['[data-accesslab-color-resource]'],['[data-accesslab-preview-style]']]},{runOnly:{type:'tag',values:AUDIT_TAGS},iframes:false,resultTypes:['violations','incomplete']});return normalize(document,results,generation,revision,startedAt,performance.now()-start);}
  finally{busy.delete(document);}
 };

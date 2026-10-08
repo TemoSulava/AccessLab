@@ -1,0 +1,18 @@
+{
+  "timingsMs": [
+    464.81215499999234,
+    315.75910699999076,
+    164.67938000001595,
+    130.84786099998746,
+    132.87251399998786
+  ],
+  "medianMs": 164.67938000001595,
+  "worstMs": 464.81215499999234,
+  "browser": "156.0.8078.4",
+  "platform": "linux",
+  "arch": "x64",
+  "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+  "logicalCpus": 5,
+  "memoryBytes": 35843661824,
+  "method": "wall-clock worker activation request through validated acknowledgement; excludes navigation/browser launch; five close/reinject cycles on 10,000-button fixture"
+}

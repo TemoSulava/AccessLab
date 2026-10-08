@@ -1,0 +1,1 @@
+export function supportedPage(href:string){try{const url=new URL(href);return ['http:','https:'].includes(url.protocol)&&url.hostname!=='chromewebstore.google.com'&&!(url.hostname==='chrome.google.com'&&url.pathname.startsWith('/webstore'));}catch{return false;}}

@@ -1,10 +1,11 @@
 import { defineBackground } from 'wxt/utils/define-background';
 import { browser } from 'wxt/browser';
+import { supportedPage } from '../src/runtime/pages';
 import { ackSchema, withTimeout } from '@accesslab/contracts';
 declare const __ACCESSLAB_TEST__: boolean;
 export default defineBackground(() => {
   async function activate(tabId: number, url: string) {
-    if (!/^https?:/.test(url) || /^https:\/\/(chromewebstore.google.com|chrome.google.com\/webstore)/.test(url)) throw new Error('This page is restricted. Open an ordinary http(s) webpage.');
+    if (!supportedPage(url)) throw new Error('This page is restricted. Open an ordinary http(s) webpage.');
     await browser.scripting.executeScript({ target: { tabId, frameIds: [0] }, files: ['/content-scripts/content.js'] });
     const requestId = crypto.randomUUID();
     const ack = ackSchema.parse(await withTimeout(browser.tabs.sendMessage(tabId, { schemaVersion: 1, requestId, type: 'activate', payload: {} }, { frameId: 0 }), 5000));
@@ -13,7 +14,7 @@ export default defineBackground(() => {
   }
   browser.action.onClicked.addListener(async tab => {
     if (!tab.id) return;
-    try { await activate(tab.id, tab.url ?? ''); await browser.action.setBadgeText({ tabId: tab.id, text: '' }); }
+    try { await activate(tab.id, tab.url ?? ''); await browser.action.setBadgeText({ tabId: tab.id, text: '' }); await browser.action.setTitle({tabId:tab.id,title:'Open AccessLab'}); }
     catch { await browser.action.setBadgeText({ tabId: tab.id, text: '!' }); await browser.action.setTitle({ tabId: tab.id, title: 'AccessLab cannot open here. Use an ordinary http(s) page and try again.' }); }
   });
   if (__ACCESSLAB_TEST__) {

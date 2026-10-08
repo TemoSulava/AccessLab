@@ -7,6 +7,7 @@ export class PageController {
  readonly host:HTMLElement;readonly shadow:ShadowRoot;
  private ownedNodes=new WeakSet<Node>();private ownedAttributes=new WeakMap<Element,Set<string>>();private baselineEffects=new Set<BaselineEffect>();private previewGeneration=new Generation();private previewRegion?:Element;
  private auditAbort?:AbortController;private auditRunning=false;readonly targets=new Map<string,Element|null>();
+ private closing?:Promise<void>;
  private listeners=new Set<()=>void>();private previous:Element|null;private url:string;private closed=false;private locateCleanup?:Cleanup;
  private snapshot:ControllerState={status:'idle',revision:0,message:'AccessLab is active',dock:'right',collapsed:false,targetsActive:false,targetThreshold:24,observations:[],targetCandidates:0,targetTruncated:0,focusActive:false,focusVisits:0,focusTrail:[],previewStrength:2,pickingRegion:false};
  onClose?:()=>void;
@@ -14,7 +15,7 @@ export class PageController {
   this.previous=document.activeElement;this.url=document.location.href;
   this.host=document.createElement('div');this.host.dataset.accesslabRoot='';this.shadow=this.host.attachShadow({mode:'open'});document.documentElement.append(this.host);this.effects.add(()=>this.host.remove());
   this.overlay=new OverlayLayer(document,this.effects);
-  this.manager=new ModuleManager({document,overlay:this.overlay,own:node=>this.ownedNodes.add(node),ownAttribute:(element,name)=>{const names=this.ownedAttributes.get(element)??new Set<string>();names.add(name);this.ownedAttributes.set(element,names);},baseline:{register:effect=>{this.baselineEffects.add(effect);return()=>{this.baselineEffects.delete(effect);}}},report:event=>{
+  this.manager=new ModuleManager({document,overlay:this.overlay,own:node=>this.ownedNodes.add(node),ownAttribute:(element,name)=>{const names=this.ownedAttributes.get(element)??new Set<string>();names.add(name);this.ownedAttributes.set(element,names);return()=>{queueMicrotask(()=>{names.delete(name);if(!names.size)this.ownedAttributes.delete(element);});};},baseline:{register:effect=>{this.baselineEffects.add(effect);return()=>{this.baselineEffects.delete(effect);}}},report:event=>{
    if(event.type==='preview-error'){this.update({previewMode:undefined,message:event.message});void this.manager.deactivate('visual-preview');}
    else if(event.type==='targets')this.update({observations:event.observations,targetCandidates:event.totalCandidates,targetTruncated:event.truncated});
    else if(event.type==='target-hover')this.update({hoveredTarget:event.observation});
@@ -22,10 +23,15 @@ export class PageController {
    else this.update({message:event.message});
   }});this.manager.register(targetSize);this.manager.register(focusTrail);this.manager.register(visualPreview);
 
+  const shadowRoots=new Set<ShadowRoot>();
+  const options={subtree:true,childList:true,attributes:true,characterData:true};
+  const discover=(root:Node)=>{if(this.owned(root))return;const elements=root instanceof Element?[root,...root.querySelectorAll('*')]:root instanceof ShadowRoot?[...root.querySelectorAll('*')]:[];for(const element of elements)if(element.shadowRoot&&!this.owned(element)){shadowRoots.add(element.shadowRoot);observer.observe(element.shadowRoot,options);discover(element.shadowRoot);}};
   const observer=new MutationObserver(records=>{
    if(!this.host.isConnected){void this.close();return;}
+   if(records.some(record=>record.removedNodes.length&& !this.owned(record.target))){observer.disconnect();observer.observe(document.documentElement,options);for(const root of shadowRoots){if(!root.host.isConnected)shadowRoots.delete(root);else observer.observe(root,options);}}
+   for(const record of records)for(const node of record.addedNodes)discover(node);
    if(records.some(record=>!(record.type==='attributes'&&record.attributeName&&this.ownedAttributes.get(record.target as Element)?.has(record.attributeName))&&(!this.owned(record.target)&&[...record.addedNodes,...record.removedNodes].some(node=>!this.owned(node)) || (record.type!=='childList'&&!this.owned(record.target)))))this.invalidate('Page changed; run a new scan.');
-  });observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,characterData:true});this.effects.add(()=>observer.disconnect());
+  });observer.observe(document.documentElement,options);discover(document.documentElement);this.effects.add(()=>{observer.disconnect();shadowRoots.clear();});
   const navigation=()=>{if(document.location.href!==this.url){this.url=document.location.href;this.cancelScan();this.invalidate('Page URL changed; run a new scan.');}};
   const timer=setInterval(navigation,1000);this.effects.add(()=>clearInterval(timer));document.defaultView?.addEventListener('popstate',navigation);document.defaultView?.addEventListener('hashchange',navigation);this.effects.add(()=>{document.defaultView?.removeEventListener('popstate',navigation);document.defaultView?.removeEventListener('hashchange',navigation)});
  }
@@ -54,5 +60,6 @@ export class PageController {
  }
  cancelScan(){this.scans.invalidate();this.auditAbort?.abort();if(this.snapshot.status==='scanning')this.update({status:'cancelled',message:'Scan cancelled. No new results published.'});}
  async reset(){this.cancelScan();this.baselineEffects.clear();this.previewGeneration.invalidate();this.previewRegion=undefined;this.targets.clear();await this.manager.reset().catch(e=>this.update({message:String(e)}));this.overlay.clear();this.update({status:'idle',report:undefined,previewMode:undefined,previewRegionLabel:undefined,pickingRegion:false,focusActive:false,focusVisits:0,focusTrail:[],targetsActive:false,observations:[],hoveredTarget:undefined,targetCandidates:0,targetTruncated:0,message:'Reset complete. No active effects.'});}
- async close(){if(this.closed)return;await this.reset();this.closed=true;await this.effects.dispose().catch(()=>{});this.listeners.clear();this.onClose?.();if(this.previous?.isConnected&&this.previous instanceof HTMLElement)this.previous.focus();}
+ close(){return this.closing??=this.dispose();}
+ private async dispose(){if(this.closed)return;await this.reset();this.closed=true;await this.effects.dispose().catch(()=>{});this.listeners.clear();this.onClose?.();if(this.previous?.isConnected&&this.previous instanceof HTMLElement)this.previous.focus();}
 }
