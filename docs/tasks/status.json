@@ -15,9 +15,9 @@
       "dependencies": [
         "T01"
       ],
-      "state": "verified",
+      "state": "done",
       "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T02",
-      "commit": null,
+      "commit": "5c22b06dbb76315e217a00944111a63451bc7abc",
       "evidencePath": "docs/evidence/T02.md",
       "blockedReason": null,
       "humanGates": [
