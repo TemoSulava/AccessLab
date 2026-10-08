@@ -28,3 +28,4 @@ it('double concurrent activation keeps only newest resources and generation supp
  const g=new Generation();const id=g.next();g.invalidate();expect(g.current(id)).toBe(false);
 });
 it('immediately cleans effects registered after disposal',async()=>{const e=new Effects();await e.dispose();let cleaned=false;e.add(()=>{cleaned=true});await e.dispose();expect(cleaned).toBe(true)});
+it('a reset module cannot publish late observations',async()=>{let finish:()=>void=()=>{};let publications=0;const manager=new ModuleManager({...base,report(){publications++}});manager.register(module('delayed-report',async ctx=>{await new Promise<void>(resolve=>{finish=resolve});ctx.report({type:'status',message:'late observation'});return()=>{}}));const pending=manager.activate('delayed-report',1);await new Promise(resolve=>setTimeout(resolve,0));await manager.reset();finish();await pending;expect(publications).toBe(0);});

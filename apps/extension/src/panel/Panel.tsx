@@ -1,4 +1,5 @@
 import { useState, useSyncExternalStore, type KeyboardEvent } from 'react';
+import { Inspection } from './Inspection';
 import { Findings } from './Findings';
 import type { PageController } from '../runtime/controller';
 export function Panel({controller,docsUrl}: {controller:PageController;docsUrl:string}) {
@@ -20,7 +21,7 @@ export function Panel({controller,docsUrl}: {controller:PageController;docsUrl:s
     {state.report&&<><p className="muted">{state.report.engine.name} {state.report.engine.version} · {new Date(state.report.startedAt).toLocaleTimeString()} · {Math.round(state.report.durationMs)} ms · {state.report.scope.excludedFrames} excluded frames</p>{state.report.stale&&<p className="notice">Stale report. Run again after page changes.</p>}<Findings report={state.report} controller={controller}/>
 </>}
 {state.status==='error'&&<p role="alert">The scan failed. Retry after resolving the reported error.</p>}</>}
-   {tab==='Inspect'&&<><h2>Inspect interaction</h2><p>Observe actual keyboard focus visits and inspect target dimensions in CSS pixels.</p><p className="notice">No inspections active.</p></>}
+   {tab==='Inspect'&&<><Inspection controller={controller}/></>}
    {tab==='Preview'&&<><h2>Rendering previews</h2><p>Selected effects illustrate rendering differences. They do not reproduce a person’s lived experience.</p><p className="notice">No preview active.</p></>}
   </section>
   <footer>Top document only. Iframes and closed shadow roots are outside supported coverage. <a href={docsUrl} target="_blank" rel="noopener noreferrer">Scope &amp; local documentation</a></footer>
