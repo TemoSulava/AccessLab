@@ -75,3 +75,8 @@ export class ModuleManager {
   }
 }
 export { OverlayLayer } from './overlay';
+export async function cancellable<T>(promise:Promise<T>,signal:AbortSignal,ms:number):Promise<T>{
+ let timer:ReturnType<typeof setTimeout>|undefined;let abort:()=>void=()=>{};
+ try{return await Promise.race([promise,new Promise<never>((_,reject)=>{abort=()=>reject(new Error('CANCELLED'));if(signal.aborted){abort();return;}signal.addEventListener('abort',abort,{once:true});timer=setTimeout(()=>reject(new Error('TIMEOUT: audit exceeded its time budget; retry')),ms);})]);}
+ finally{clearTimeout(timer);signal.removeEventListener('abort',abort);}
+}

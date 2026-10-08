@@ -80,9 +80,23 @@ importers:
 
   packages/contracts: {}
 
-  packages/core: {}
+  packages/core:
+    dependencies:
+      '@accesslab/contracts':
+        specifier: workspace:*
+        version: link:../contracts
 
-  packages/modules: {}
+  packages/modules:
+    dependencies:
+      '@accesslab/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@accesslab/core':
+        specifier: workspace:*
+        version: link:../core
+      axe-core:
+        specifier: 4.14.0
+        version: 4.14.0
 
 packages:
 

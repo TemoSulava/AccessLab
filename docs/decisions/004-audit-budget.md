@@ -1,0 +1,7 @@
+# Audit preflight safety budget
+
+T07 real-browser test on a 10,000-button fixture showed axe-core 4.14.0 synchronously monopolized the document while initiating audit: Run click did not return before the 45-second test timeout, so neither a timer nor Cancel can interrupt that phase. Moving DOM-based axe checks into a Worker is unsupported. Disabling rules or pretending a partial audit is complete would mislead users.
+
+Decision: v0.1 rejects full-document audits before starting when the document exceeds 5,000 elements or 1,000 interactive targets. It displays AUDIT_SCOPE_TOO_LARGE with the precise limits and no report; no automatic scope reduction or compliance claim. Activation, inspection and previews remain available on the 10k-node fixture. 30-second audit timeout and generation cancellation still cover the supported document budget. Tests require the explicit large-scope failure and responsive Reset; regular-fixture reset/cancellation and delayed-run unit tests remain.
+
+This is an explicit supported-scope limitation added from measured page-blockage evidence, not a claim that audits of arbitrarily large pages work. A future yielding adapter/selected-scope architecture needs separate design and timing evidence. Element preflight includes light DOM; nested open-shadow totals are additionally bounded in T14 if needed.
