@@ -89,9 +89,9 @@
       "dependencies": [
         "T07"
       ],
-      "state": "pending",
+      "state": "done",
       "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T08",
-      "commit": null,
+      "commit": "1975ce89bc33b268cb754487fb78d3a63d0f5474",
       "evidencePath": "docs/evidence/T08.md",
       "blockedReason": null,
       "humanGates": []
@@ -205,5 +205,5 @@
       "humanGates": []
     }
   ],
-  "checkpoint": "T07 verified. Next task in dependency order."
+  "checkpoint": "T08 verified. Next task in dependency order."
 }
