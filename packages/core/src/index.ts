@@ -50,7 +50,7 @@ export class ModuleManager {
     const instance: Instance = { abort: new AbortController(), effects: new Effects(), group: module.exclusiveGroup };
     this.instances.set(id, instance);
     try {
-      const cleanup = await module.activate({ ...this.base, signal: instance.abort.signal, effects: instance.effects }, parsed);
+      const cleanup = await module.activate({ ...this.base, signal: instance.abort.signal, effects: instance.effects, report:event=>{if(!instance.abort.signal.aborted&&this.instances.get(id)===instance)this.base.report(event);} }, parsed);
       if (instance.abort.signal.aborted || this.instances.get(id) !== instance) { await cleanup(); await instance.effects.dispose(); return; }
       instance.effects.add(cleanup);
     } catch (error) {

@@ -1,19 +1,24 @@
 import { Effects, Generation, ModuleManager, OverlayLayer, cancellable } from '@accesslab/core';
-import type { AuditReport, ScanState, Cleanup } from '@accesslab/contracts';
-import { runAxe, AUDIT_TIMEOUT_MS, type AuditRunner } from '@accesslab/modules';
-export interface ControllerState { status: ScanState; revision: number; report?: AuditReport; message: string; dock: 'right'|'left'; collapsed: boolean; }
+import type { AuditReport, ScanState, Cleanup, TargetObservation } from '@accesslab/contracts';
+import { runAxe, AUDIT_TIMEOUT_MS, type AuditRunner, targetSize } from '@accesslab/modules';
+export interface ControllerState { status: ScanState; revision: number; report?: AuditReport; message: string; dock: 'right'|'left'; collapsed: boolean; targetsActive:boolean; targetThreshold:24|44; observations:TargetObservation[]; targetCandidates:number; targetTruncated:number; hoveredTarget?:TargetObservation; }
 export class PageController {
  readonly effects=new Effects();readonly scans=new Generation();readonly overlay:OverlayLayer;readonly manager:ModuleManager;
  readonly host:HTMLElement;readonly shadow:ShadowRoot;
  private auditAbort?:AbortController;private auditRunning=false;readonly targets=new Map<string,Element|null>();
  private listeners=new Set<()=>void>();private previous:Element|null;private url:string;private closed=false;private locateCleanup?:Cleanup;
- private snapshot:ControllerState={status:'idle',revision:0,message:'AccessLab is active',dock:'right',collapsed:false};
+ private snapshot:ControllerState={status:'idle',revision:0,message:'AccessLab is active',dock:'right',collapsed:false,targetsActive:false,targetThreshold:24,observations:[],targetCandidates:0,targetTruncated:0};
  onClose?:()=>void;
  constructor(readonly document:Document, private auditRunner:AuditRunner=runAxe, private auditTimeout=AUDIT_TIMEOUT_MS){
   this.previous=document.activeElement;this.url=document.location.href;
   this.host=document.createElement('div');this.host.dataset.accesslabRoot='';this.shadow=this.host.attachShadow({mode:'open'});document.documentElement.append(this.host);this.effects.add(()=>this.host.remove());
   this.overlay=new OverlayLayer(document,this.effects);
-  this.manager=new ModuleManager({document,overlay:this.overlay,report:event=>this.update({message:event.type==='status'?event.message:`Observed ${event.visits} focus visits`})});
+  this.manager=new ModuleManager({document,overlay:this.overlay,report:event=>{
+   if(event.type==='targets')this.update({observations:event.observations,targetCandidates:event.totalCandidates,targetTruncated:event.truncated});
+   else if(event.type==='target-hover')this.update({hoveredTarget:event.observation});
+   else this.update({message:event.type==='status'?event.message:`Observed ${event.visits} focus visits`});
+  }});this.manager.register(targetSize);
+
   const observer=new MutationObserver(records=>{
    if(!this.host.isConnected){void this.close();return;}
    if(records.some(record=>!this.owned(record.target)&&[...record.addedNodes,...record.removedNodes].some(node=>!this.owned(node)) || (record.type!=='childList'&&!this.owned(record.target))))this.invalidate('Page changed; run a new scan.');
@@ -28,6 +33,8 @@ export class PageController {
  invalidate(message:string){this.update({revision:this.snapshot.revision+1,...(this.snapshot.report?{status:'stale' as const,report:{...this.snapshot.report,stale:true}}:{}),message});}
  open(){this.update({collapsed:false});(this.shadow.querySelector('button') as HTMLElement|null)?.focus();}
  locate(element:Element|null,label='Located target'){void this.locateCleanup?.();if(!element?.isConnected){this.update({message:'Target unavailable: the element disappeared.'});return;}element.scrollIntoView({block:'center',behavior:'instant'});this.locateCleanup=this.overlay.show(element,label);this.update({message:label});}
+ async enableTargets(threshold:24|44=this.snapshot.targetThreshold){this.update({targetsActive:true,targetThreshold:threshold,observations:[],message:'Measuring up to 1,000 targets…'});try{await this.manager.activate('target-size',{threshold});}catch(error){this.update({targetsActive:false,message:String(error)});}}
+ async disableTargets(){await this.manager.deactivate('target-size');this.update({targetsActive:false,observations:[],hoveredTarget:undefined,targetCandidates:0,targetTruncated:0,message:'Target inspection disabled.'});}
  locateFinding(id:string){this.locate(this.targets.get(id)??null,'Located audit target.');}
  focusFinding(id:string){const target=this.targets.get(id);if(!target?.isConnected||!(target instanceof HTMLElement)){this.update({message:'Target unavailable: the element disappeared.'});return;}target.focus();this.update({message:this.document.activeElement===target||target.getRootNode() instanceof ShadowRoot?'Focus requested for target.':'Target could not receive focus; inspect its native focus behavior.'});}
  async runScan(){
@@ -37,6 +44,6 @@ export class PageController {
   finally{this.auditRunning=false;if(this.auditAbort===abort)this.auditAbort=undefined;this.overlay.resume();}
  }
  cancelScan(){this.scans.invalidate();this.auditAbort?.abort();if(this.snapshot.status==='scanning')this.update({status:'cancelled',message:'Scan cancelled. No new results published.'});}
- async reset(){this.cancelScan();this.targets.clear();await this.manager.reset().catch(e=>this.update({message:String(e)}));this.overlay.clear();this.update({status:'idle',report:undefined,message:'Reset complete. No active effects.'});}
+ async reset(){this.cancelScan();this.targets.clear();await this.manager.reset().catch(e=>this.update({message:String(e)}));this.overlay.clear();this.update({status:'idle',report:undefined,targetsActive:false,observations:[],hoveredTarget:undefined,targetCandidates:0,targetTruncated:0,message:'Reset complete. No active effects.'});}
  async close(){if(this.closed)return;await this.reset();this.closed=true;await this.effects.dispose().catch(()=>{});this.listeners.clear();this.onClose?.();if(this.previous?.isConnected&&this.previous instanceof HTMLElement)this.previous.focus();}
 }
