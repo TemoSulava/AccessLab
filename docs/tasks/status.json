@@ -15,11 +15,11 @@
       "dependencies": [
         "T01"
       ],
-      "state": "blocked",
+      "state": "verified",
       "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T02",
       "commit": null,
       "evidencePath": "docs/evidence/T02.md",
-      "blockedReason": "Managed Chromium ExtensionInstallBlocklist=[*] prevents unpacked extensions. Playwright browser download receives HTTP 403 Domain forbidden from cdn.playwright.dev. Need an administrator-provided extension-capable browser environment and allowed browser download destinations.",
+      "blockedReason": null,
       "humanGates": [
         "Current stable Chrome toolbar/action activation pending"
       ]
@@ -205,5 +205,5 @@
       "humanGates": []
     }
   ],
-  "checkpoint": "Resume T02: obtain an extension-capable Chromium environment. Review saved browser download domains; install via PLAYWRIGHT_BROWSERS_PATH=/workspace/.cache/ms-playwright pnpm exec playwright install chromium. Run pnpm lint && pnpm typecheck && pnpm build && PLAYWRIGHT_BROWSERS_PATH=/workspace/.cache/ms-playwright pnpm test:extension. Do not advance T03 until T02 passes. T17 remains deferred."
+  "checkpoint": "T02 verified. Next task in dependency order."
 }

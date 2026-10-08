@@ -1,0 +1,7 @@
+# Dependency security checks
+
+Requested by the user on 2026-10-08. Before adding/updating npm dependencies, confirm the exact package identity, official repository, pinned-version metadata, lifecycle scripts, provenance availability and registry integrity; run advisory checks and inspect suspicious changes before installing. Use frozen lockfiles and retain signature/TLS/integrity checks. Do not execute unreviewed lifecycle scripts. No check guarantees a package has never been compromised.
+
+Current lockfile: pnpm's frozen-install supply-chain policy check passed 324 entries during T01. `pnpm audit --json` on 2026-10-08 reports zero known advisories (0 info/low/moderate/high/critical). Rechecked official registry metadata for @playwright/test 1.64.0 (microsoft/playwright), axe-core 4.14.0 (dequelabs/axe-core), WXT 0.21.4 (wxt-dev/wxt): SHA-512 integrity and SLSA provenance metadata present. No install/postinstall scripts in these three manifests. Provenance metadata availability is not a claim of independently verified provenance or absence of malicious code. Browser artifacts are fetched by the pinned Playwright installer from official TLS endpoints with its normal verification intact.
+
+Future dependency changes must record their assessment here or in task evidence. Prefer existing dependencies and local code over unnecessary packages.

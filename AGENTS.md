@@ -7,3 +7,4 @@ Use strict message schemas. Treat page strings as untrusted. Never export sensit
 Every effect needs idempotent cleanup. Preserve generation/reset semantics across races.
 Record unsupported scope explicitly. Continue until finished or concretely blocked.
 Push each completed task to the implementation branch, as authorized by the user.
+Before adding/updating any dependency, inspect official package/version identity, source, lifecycle scripts, integrity/provenance and known advisories. Record the assessment; never disable verification. See docs/decisions/003-dependency-security.md.
