@@ -53,13 +53,26 @@ export interface AuditReport {
   viewport: { width: number; height: number }; startedAt: string; durationMs: number; generation: number; pageRevision: number; stale: boolean;
   scope: { topDocument: true; excludedFrames: number; limits: string[] }; violations: Finding[]; needsReview: Finding[];
 }
+function textField(value: unknown) { if (typeof value !== 'string') throw new Error('Invalid text'); }
+function strings(value: unknown) { if (!Array.isArray(value) || value.some(v => typeof v !== 'string')) throw new Error('Invalid text list'); }
+function positive(value: unknown, integer=false) { if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || (integer && !Number.isInteger(value))) throw new Error('Invalid number'); }
 export const reportSchema: RuntimeSchema<AuditReport> = { parse(value) {
-  if (new TextEncoder().encode(JSON.stringify(value)).length > REPORT_BYTES) throw new Error('Report exceeds 5 MiB');
+  if (new TextEncoder().encode(JSON.stringify(value)).length > REPORT_BYTES) throw new Error('Report exceeds 5 MiB; no partial export created');
   const v = object(value); exact(v, ['schemaVersion','productVersion','engine','page','viewport','startedAt','durationMs','generation','pageRevision','stale','scope','violations','needsReview']);
-  if (v.schemaVersion !== 1 || typeof v.page !== 'string' || typeof v.stale !== 'boolean') throw new Error('Unsupported report');
+  if (v.schemaVersion !== 1 || typeof v.stale !== 'boolean') throw new Error('Unsupported report');
+  for (const key of ['productVersion','page','startedAt']) textField(v[key]);
+  const engine=object(v.engine);exact(engine,['name','version','tags']);textField(engine.name);textField(engine.version);strings(engine.tags);
+  const viewport=object(v.viewport);exact(viewport,['width','height']);positive(viewport.width);positive(viewport.height);
+  for(const key of ['durationMs','generation','pageRevision']) positive(v[key],key!=='durationMs');
+  const scope=object(v.scope);exact(scope,['topDocument','excludedFrames','limits']);if(scope.topDocument!==true)throw new Error('Unsupported scope');positive(scope.excludedFrames,true);strings(scope.limits);
   for (const key of ['violations','needsReview']) {
     if (!Array.isArray(v[key])) throw new Error('Invalid findings');
-    for (const entry of v[key] as unknown[]) { const f = object(entry); if (typeof f.id !== 'string' || typeof f.ruleId !== 'string' || ![null,'minor','moderate','serious','critical'].includes(f.impact as Impact) || !Array.isArray(f.target) || f.target.some(t => typeof t !== 'string')) throw new Error('Invalid finding'); }
+    for (const entry of v[key] as unknown[]) {
+      const f=object(entry);exact(f,['id','ruleId','impact','description','help','helpUrl','tags','reviewStatus','target','elementType','explanation','suggestion']);
+      for(const name of ['id','ruleId','description','help','helpUrl','elementType','explanation','suggestion'])textField(f[name]);
+      strings(f.tags);strings(f.target);
+      if (![null,'minor','moderate','serious','critical'].includes(f.impact as Impact) || f.reviewStatus!==(key==='violations'?'violation':'needs-review')) throw new Error('Invalid finding');
+    }
   }
   return v as unknown as AuditReport;
 } };
