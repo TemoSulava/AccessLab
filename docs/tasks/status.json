@@ -113,12 +113,14 @@
       "dependencies": [
         "T09"
       ],
-      "state": "pending",
+      "state": "done",
       "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T10",
-      "commit": null,
+      "commit": "b2fff237568c62a6a1d98063f9d9477df9ce008e",
       "evidencePath": "docs/evidence/T10.md",
       "blockedReason": null,
-      "humanGates": []
+      "humanGates": [
+        "Human keyboard walkthrough and current Chrome native modal workflow pending"
+      ]
     },
     {
       "id": "T11",
@@ -205,5 +207,5 @@
       "humanGates": []
     }
   ],
-  "checkpoint": "T09 verified. Next task in dependency order."
+  "checkpoint": "T10 verified. Next task in dependency order."
 }
