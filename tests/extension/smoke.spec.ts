@@ -19,3 +19,8 @@ test('worker/content messages acknowledge valid state and reject invalid command
   expect(replies[0]).toMatchObject({requestId:'valid',type:'ack',payload:{active:true,state:'idle'}});
   expect(replies[1]).toBeUndefined(); expect(replies[2]).toBeUndefined();
 });
+test('owned DOM and message listeners clean up across repeated activation', async ({ page, activate }) => {
+ await page.goto('http://127.0.0.1:4173/');
+ for(let i=0;i<20;i++) { await activate(page); await page.getByRole('button',{name:'Close AccessLab'}).click(); await expect(page.locator('[data-accesslab-root]')).toHaveCount(0); }
+ await activate(page); await expect(page.locator('[data-accesslab-root]')).toHaveCount(1);
+});
