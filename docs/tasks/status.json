@@ -65,7 +65,7 @@
       "dependencies": [
         "T05"
       ],
-      "state": "pending",
+      "state": "verified",
       "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T06",
       "commit": null,
       "evidencePath": "docs/evidence/T06.md",
@@ -205,5 +205,5 @@
       "humanGates": []
     }
   ],
-  "checkpoint": "T05 verified. Next task in dependency order."
+  "checkpoint": "T06 verified. Next task in dependency order."
 }

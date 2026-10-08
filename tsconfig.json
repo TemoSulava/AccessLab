@@ -34,7 +34,8 @@
     "packages/**/*.ts",
     "tests/**/*.ts",
     "tests/**/*.tsx",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "apps/extension/.wxt/wxt.d.ts"
   ],
   "exclude": [
     "**/.output/**",
