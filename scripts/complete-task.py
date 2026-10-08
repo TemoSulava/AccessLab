@@ -1,4 +1,4 @@
-import sys,json,subprocess
+import sys,json,subprocess,time
 from pathlib import Path
 id=sys.argv[1]; summary=sys.argv[2]
 s=json.loads(Path('docs/tasks/status.json').read_text());t=next(x for x in s['tasks'] if x['id']==id)
@@ -17,6 +17,16 @@ pr=subprocess.run(['gh','pr','create','--base','main','--head',branch,'--title',
 print(pr.stdout,pr.stderr)
 if pr.returncode==0:
  url=pr.stdout.strip().splitlines()[-1]
+ if Path('.github/workflows/verify.yml').exists():
+  for attempt in range(12):
+   result=subprocess.run(['gh','pr','checks',url,'--json','name,state,link'],capture_output=True,text=True)
+   try: checks=json.loads(result.stdout)
+   except json.JSONDecodeError: checks=[]
+   if isinstance(checks,list) and checks: break
+   time.sleep(5)
+  else: raise RuntimeError('CI checks not reported; investigate workflow scheduling before merge')
+  with open(f'/tmp/accesslab-{id}-pr-checks.log','w') as log:
+   subprocess.run(['gh','pr','checks',url,'--watch','--interval','10'],stdout=log,stderr=subprocess.STDOUT,check=True)
  subprocess.run(['gh','pr','merge',url,'--merge'],check=True)
  subprocess.run(['git','fetch','origin','main'],check=True)
  subprocess.run(['git','merge','--ff-only','origin/main'],check=True)

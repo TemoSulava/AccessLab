@@ -177,7 +177,7 @@
       "dependencies": [
         "T14"
       ],
-      "state": "pending",
+      "state": "verified",
       "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T15",
       "commit": null,
       "evidencePath": "docs/evidence/T15.md",
@@ -209,5 +209,5 @@
       "humanGates": []
     }
   ],
-  "checkpoint": "T14 verified. Next task in dependency order."
+  "checkpoint": "T15 verified. Next task in dependency order."
 }
