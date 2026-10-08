@@ -22,7 +22,7 @@ if pr.returncode==0:
    result=subprocess.run(['gh','pr','view',url,'--json','statusCheckRollup'],capture_output=True,text=True)
    try: checks=json.loads(result.stdout).get('statusCheckRollup',[])
    except json.JSONDecodeError: checks=[]
-   if isinstance(checks,list) and checks: break
+   if isinstance(checks,list) and any(c.get('name')=='verify' and c.get('workflowName')=='Verify and package' for c in checks): break
    time.sleep(5)
   else: raise RuntimeError('CI checks not reported; investigate workflow scheduling before merge')
   with open(f'/tmp/accesslab-{id}-pr-checks.log','w') as log:
