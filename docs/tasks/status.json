@@ -163,12 +163,14 @@
       "dependencies": [
         "T13"
       ],
-      "state": "pending",
+      "state": "done",
       "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T14",
-      "commit": null,
+      "commit": "a1d517d98ced434c6e2a48205438f1b880a3de20",
       "evidencePath": "docs/evidence/T14.md",
       "blockedReason": null,
-      "humanGates": []
+      "humanGates": [
+        "Current stable Chrome manual install/action smoke and actual browser zoom pending"
+      ]
     },
     {
       "id": "T15",
@@ -207,5 +209,5 @@
       "humanGates": []
     }
   ],
-  "checkpoint": "T13 verified. Next task in dependency order."
+  "checkpoint": "T14 verified. Next task in dependency order."
 }
