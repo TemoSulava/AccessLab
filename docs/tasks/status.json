@@ -189,9 +189,9 @@
       "dependencies": [
         "T15"
       ],
-      "state": "verified",
+      "state": "done",
       "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T16",
-      "commit": null,
+      "commit": "6a5e717e68a3efc3d330ecefc5e6bef2af1f2bb5",
       "evidencePath": "docs/evidence/T16.md",
       "blockedReason": null,
       "humanGates": [
@@ -212,5 +212,5 @@
       "humanGates": []
     }
   ],
-  "checkpoint": "T16 verified. Next task in dependency order."
+  "checkpoint": "v0.1 implementation complete; PR CI gate required before main merge. Human evaluation pending; optional T17 v0.2 unselected."
 }
