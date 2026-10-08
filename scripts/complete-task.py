@@ -1,6 +1,9 @@
 import sys,json,subprocess,time
 from pathlib import Path
 id=sys.argv[1]; summary=sys.argv[2]
+branch=subprocess.check_output(['git','branch','--show-current'],text=True).strip()
+if not branch or branch=='main':
+ raise RuntimeError('Task completion requires a topic branch; main and detached HEAD are prohibited.')
 s=json.loads(Path('docs/tasks/status.json').read_text());t=next(x for x in s['tasks'] if x['id']==id)
 for dep in t['dependencies']:
  assert next(x for x in s['tasks'] if x['id']==dep)['state']=='done'
@@ -13,7 +16,6 @@ Path('docs/tasks/status.json').write_text(json.dumps(s,indent=2)+'\n')
 subprocess.run(['git','add','docs/tasks/status.json'],check=True);subprocess.run(['git','commit','-m',f'docs: record {id} completion'],check=True)
 subprocess.run(['git','push','-u','origin','HEAD'],check=True)
 
-branch=subprocess.check_output(['git','branch','--show-current'],text=True).strip()
 pr=subprocess.run(['gh','pr','create','--base','main','--head',branch,'--title',f'{id}: {summary}','--body-file',f'docs/evidence/{id}.md'],capture_output=True,text=True)
 print(pr.stdout,pr.stderr)
 if pr.returncode==0:
@@ -32,6 +34,4 @@ if pr.returncode==0:
  subprocess.run(['git','fetch','origin','main'],check=True)
  subprocess.run(['git','merge','--ff-only','origin/main'],check=True)
 else:
- subprocess.run(['git','fetch','origin','main'],check=True)
- subprocess.run(['git','merge-base','--is-ancestor','origin/main','HEAD'],check=True)
- subprocess.run(['git','push','origin','HEAD:main'],check=True)
+ raise RuntimeError('PR creation failed. Branch is pushed for review; direct pushes to main are prohibited.')

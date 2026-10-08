@@ -36,6 +36,10 @@ Verification runs lint, types, unit/component tests, production build, loaded-ex
 
 ## Scope and contribution
 
+Contributions are welcome through pull requests into `main`. Fork the repository, work on a topic branch, and follow [CONTRIBUTING.md](CONTRIBUTING.md). Start with a focused bug fix, documentation improvement or fixture test; discuss new modules and permission changes in an issue first. Maintainers review contributions before merging. Direct pushes to `main` are prohibited by project policy; see [repository governance](docs/repository-governance.md) for the enforcement setup and current access limitation.
+
+Please follow our [Code of Conduct](CODE_OF_CONDUCT.md). Use [bug reports](https://github.com/TemoSulava/AccessLab/issues/new?template=bug_report.yml) or [feature proposals](https://github.com/TemoSulava/AccessLab/issues/new?template=feature_request.yml); report vulnerabilities privately using [SECURITY.md](SECURITY.md).
+
 Top document and discoverable open shadow roots; no iframe/closed-shadow coverage. Audit budget is 5,000 elements / 1,000 interactive targets; oversized documents fail explicitly before the engine can block the page. Previews require a static region ≤500 elements. Rendering approximations do not reproduce lived experience. No accounts, backend, telemetry, remote scans or all-site permission.
 
 Read [privacy/scope](docs/privacy-and-scope.md), [architecture](docs/architecture.md), [module tutorial](docs/module-author.md), [test guide](docs/testing.md), [contribution guide](CONTRIBUTING.md), [security policy](SECURITY.md) and [task evidence](docs/tasks/status.json). Optional v0.2 pointer sandbox requires explicit selection and is outside this v0.1 build.
