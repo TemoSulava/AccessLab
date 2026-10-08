@@ -4,7 +4,7 @@ import { explainRule } from './explanations';
 import type { AuditReport, Finding, Impact } from '@accesslab/contracts';
 export const AUDIT_TAGS=['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa'];
 export const AUDIT_TIMEOUT_MS=30000;
-export const SCOPE_LIMITS=['Top document only; iframe elements excluded.','Closed shadow roots are inaccessible; they cannot be comprehensively counted.','Automated checks cover only part of accessibility; manual checks remain.'];
+export const SCOPE_LIMITS=['Top document only; iframe elements excluded.','Closed shadow roots are inaccessible; they cannot be comprehensively counted.','Automated checks cover only part of accessibility; manual checks remain.','Audit budget: 5,000 accessible elements / 1,000 interactive targets, including open shadows.','Open shadows attached later without observed host changes may require a manual rerun.'];
 export interface AuditOutput { report:AuditReport; targets:Map<string,Element|null>; }
 export type AuditRunner=(document:Document,generation:number,revision:number)=>Promise<AuditOutput>;
 export function safePageUrl(href:string){const url=new URL(href);return url.origin+url.pathname;}
@@ -13,13 +13,14 @@ export function resolveTarget(document:Document,target:string[]):Element|null {
  let root:Document|ShadowRoot=document;let element:Element|null=null;
  try{for(let i=0;i<target.length;i++){element=root.querySelector(target[i]);if(!element)return null;if(i<target.length-1){if(!element.shadowRoot)return null;root=element.shadowRoot;}}return element;}catch{return null;}
 }
+export function countExcludedFrames(document:Document){const roots:(Document|ShadowRoot)[]=[document];let frames=0;while(roots.length){const root=roots.pop()!;for(const element of root.querySelectorAll('*')){if(ownedElement(element))continue;if(element.tagName==='IFRAME')frames++;if(element.shadowRoot)roots.push(element.shadowRoot);}}return frames;}
 export function normalize(document:Document,results:axe.AxeResults,generation:number,revision:number,startedAt:string,durationMs:number):AuditOutput {
  const targets=new Map<string,Element|null>(),duplicates=new Map<string,number>();
  function findings(rules:axe.Result[],reviewStatus:Finding['reviewStatus']):Finding[]{return rules.flatMap(rule=>rule.nodes.map(node=>{
   const target=node.target.flat(Infinity).map(String);const key=JSON.stringify([rule.id,target]);const duplicate=duplicates.get(key)??0;duplicates.set(key,duplicate+1);const id=findingId(rule.id,target,duplicate);const element=resolveTarget(document,target);targets.set(id,element);
   return {id,ruleId:rule.id,impact:(rule.impact??null) as Impact,description:rule.description,help:rule.help,helpUrl:rule.helpUrl,tags:rule.tags,reviewStatus,target,elementType:element?.tagName.toLowerCase()??'unavailable',...explainRule(rule.id,rule.description)};
  }));}
- return {targets,report:{schemaVersion:1,productVersion:'0.1.0',engine:{name:'axe-core',version:axe.version,tags:AUDIT_TAGS},page:safePageUrl(document.location.href),viewport:{width:document.defaultView!.innerWidth,height:document.defaultView!.innerHeight},startedAt,durationMs,generation,pageRevision:revision,stale:false,scope:{topDocument:true,excludedFrames:document.querySelectorAll('iframe').length,limits:SCOPE_LIMITS},violations:findings(results.violations,'violation'),needsReview:findings(results.incomplete,'needs-review')}};
+ return {targets,report:{schemaVersion:1,productVersion:'0.1.0',engine:{name:'axe-core',version:axe.version,tags:AUDIT_TAGS},page:safePageUrl(document.location.href),viewport:{width:document.defaultView!.innerWidth,height:document.defaultView!.innerHeight},startedAt,durationMs,generation,pageRevision:revision,stale:false,scope:{topDocument:true,excludedFrames:countExcludedFrames(document),limits:SCOPE_LIMITS},violations:findings(results.violations,'violation'),needsReview:findings(results.incomplete,'needs-review')}};
 }
 const busy=new WeakSet<Document>();
 export const runAxe:AuditRunner=async(document,generation,revision)=>{

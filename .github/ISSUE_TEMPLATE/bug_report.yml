@@ -1,0 +1,15 @@
+name: Bug report
+description: Report a reproducible AccessLab failure using synthetic data.
+body:
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Reproduction and expected/actual behavior
+      description: Include a minimal local fixture and browser/OS/AccessLab version. Do not post private reports, values or credentials. Use private reporting for vulnerabilities.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Validation and recovery
+      description: State whether Reset, Close or hard reload restores baseline; include synthetic-only evidence and any scope limits.

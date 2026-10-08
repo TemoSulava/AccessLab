@@ -189,25 +189,28 @@
       "dependencies": [
         "T15"
       ],
-      "state": "pending",
+      "state": "done",
       "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T16",
-      "commit": null,
+      "commit": "6a5e717e68a3efc3d330ecefc5e6bef2af1f2bb5",
       "evidencePath": "docs/evidence/T16.md",
       "blockedReason": null,
-      "humanGates": []
+      "humanGates": [
+        "Current stable Chrome install/action/actual zoom and screen-reader walkthrough pending",
+        "Consented disabled-participant feedback pending; no public validation claims"
+      ]
     },
     {
       "id": "T17",
       "dependencies": [
         "T16"
       ],
-      "state": "pending",
+      "state": "blocked",
       "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T17",
       "commit": null,
       "evidencePath": "docs/evidence/T17.md",
-      "blockedReason": null,
+      "blockedReason": "Optional v0.2 requires explicit selection per plan T17; outside completed v0.1 engineering scope.",
       "humanGates": []
     }
   ],
-  "checkpoint": "T15 verified. Next task in dependency order."
+  "checkpoint": "v0.1 implementation complete; PR CI gate required before main merge. Human evaluation pending; optional T17 v0.2 unselected."
 }

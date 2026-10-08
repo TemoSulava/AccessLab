@@ -1,0 +1,10 @@
+// @vitest-environment jsdom
+import { it,expect } from 'vitest';
+import { ModuleManager } from '../../packages/core/src';
+import { headingOutline } from '../../packages/modules/src/heading-outline';
+it('bounds local heading overlays, rejects invalid config and cleans replacements/reset',async()=>{
+ document.body.innerHTML='<h1>One</h1><h2>Two</h2><h3>Three</h3>';let overlays=0;
+ const manager=new ModuleManager({document,report(){},overlay:{show(){overlays++;let active=true;return()=>{if(active){active=false;overlays--;}}},clear(){}}});manager.register(headingOutline);
+ await expect(manager.activate('heading-outline',{limit:21})).rejects.toThrow();expect(overlays).toBe(0);
+ for(let i=0;i<20;i++){await manager.activate('heading-outline',{limit:2});expect(overlays).toBe(2);await manager.reset();expect(overlays).toBe(0);}
+});
