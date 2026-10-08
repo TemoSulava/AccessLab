@@ -139,9 +139,9 @@
       "dependencies": [
         "T11"
       ],
-      "state": "verified",
+      "state": "done",
       "acceptanceCriteria": "AccessLab-Implementation-Plan.md section 9 T12",
-      "commit": null,
+      "commit": "f294d62b4bca17a9b95b79a1446fb42fe9a2b7be",
       "evidencePath": "docs/evidence/T12.md",
       "blockedReason": null,
       "humanGates": []
